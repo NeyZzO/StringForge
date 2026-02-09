@@ -27,16 +27,20 @@ namespace StringForge {
         }
 
         /// <summary>
-        /// Determines whether the specified phone number is valid according to a standard pattern.
+        /// Determines whether the specified phone number is valid according to an international format with country code.
         /// </summary>
-        /// <remarks>A valid phone number may include digits, spaces, dashes, parentheses, and an optional
-        /// leading plus sign. The method returns false if the input is null or empty.</remarks>
+        /// <remarks>A valid phone number must start with a '+' followed by digits (and optionally spaces, dashes, or parentheses).
+        /// The total number of digits must be at least 8 (country code + phone number).</remarks>
         /// <param name="phoneNumber">The phone number to validate. This value must not be null or empty.</param>
         /// <returns>true if the phone number is valid; otherwise, false.</returns>
         public static bool IsValidPhoneNumber(string phoneNumber) {
             if (String.IsNullOrEmpty(phoneNumber)) return false;
-            string phonePattern = @"^\+?[\d\s\-()]+$";
-            return Regex.IsMatch(phoneNumber, phonePattern);
+            // Format: +{digits} with optional spaces, dashes, parentheses
+            string phonePattern = @"^\+[\d\s\-()]+$";
+            if (!Regex.IsMatch(phoneNumber, phonePattern)) return false;
+            // Ensure we have at least 8 digits total (country code 1-3 + at least 5 digits for number)
+            string digitsOnly = new string(phoneNumber.Where(char.IsDigit).ToArray());
+            return digitsOnly.Length >= 8;
         }
     }
 }

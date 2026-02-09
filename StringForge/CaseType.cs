@@ -12,5 +12,6 @@ namespace StringForge {
         AlternatingCase,
         UpperCase,
         ScreamingSnakeCase,
+        Unknown,
     }
 }

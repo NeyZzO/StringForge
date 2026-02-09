@@ -190,15 +190,18 @@ namespace StringForge {
                 }
             }
 
+
+            // Check for aLtErNaTiNg CaSe. Needs to be checked before camelCase other wise it could be interpreted as camelCase
+            if (IsAlternatingCase(input)) {
+                return CaseType.AlternatingCase;
+            }
+
             // Check for camelCase (starts with lowercase, has uppercase somewhere)
             if (Regex.IsMatch(input, @"^[a-z][a-zA-Z0-9]*$") && Regex.IsMatch(input, @"[A-Z]")) {
                 return CaseType.CamelCase;
             }
 
-            // Check for aLtErNaTiNg CaSe
-            if (IsAlternatingCase(input)) {
-                return CaseType.AlternatingCase;
-            }
+            
 
             // Check for Title Case (words separated by spaces, each starting with uppercase)
             if (Regex.IsMatch(input, @"^[A-Z][a-z]*(\s+[A-Z][a-z]*)*$")) {
@@ -206,7 +209,7 @@ namespace StringForge {
             }
 
             // Default
-            return CaseType.TitleCase;
+            return CaseType.Unknown;
         }
 
         /// <summary>
@@ -249,7 +252,7 @@ namespace StringForge {
                 if (char.IsLetter(c)) {
                     letterCount++;
                     if (expectLower == null) {
-                        expectLower = char.IsLower(c);
+                        expectLower = !char.IsLower(c);
                     } else {
                         bool isLower = char.IsLower(c);
                         if (isLower != expectLower) {

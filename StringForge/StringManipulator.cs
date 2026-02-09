@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace StringForge {
@@ -21,7 +22,7 @@ namespace StringForge {
         public static string Reverse(string input) {
             if (String.IsNullOrWhiteSpace(input) || String.IsNullOrEmpty(input)) return input;
             char[] chars = input.ToCharArray();
-            return chars.Reverse().ToString() ?? "";
+            return new string(chars.Reverse().ToArray());
         }
 
         /// <summary>
@@ -46,13 +47,9 @@ namespace StringForge {
         /// <returns>The truncated string with the suffix appended if the input exceeds the specified maximum length; otherwise,
         /// the original input.</returns>
         public static string Truncate(string input, int maxLength, string suffix = "...") {
-            if (!String.IsNullOrWhiteSpace(input)) return input;
-            if (maxLength > 0) {
-                if (input.Length > maxLength) {
-                    return input.Substring(0, maxLength) + suffix;
-                }
-            }
-            return input;
+            if (String.IsNullOrWhiteSpace(input)) return input;
+            if (maxLength <= 0 || maxLength >= input.Length) return input;
+            return string.Concat(input[..maxLength], suffix);
         }
 
         /// <summary>
@@ -85,26 +82,41 @@ namespace StringForge {
             if (!StringValidator.IsValidEmail(email)) throw new ArgumentException("The provided string isn't an email");
             string user = email.Split('@')[0];
             string domain = email.Split('@')[1];
-            return user[0] + "..." + user[^1] + "@" + domain;
+            return user[0] + new string('*', user.Length - 2) + user[^1] + "@" + domain;
         }
 
         /// <summary>
-        /// Returns a masked version of a phone number, replacing all but the last two digits with asterisks to help
-        /// protect sensitive information.
+        /// Returns a masked version of a phone number in the format +(country code)X*******XX.
         /// </summary>
-        /// <remarks>This method extracts all digits from the input string before masking. Non-digit
-        /// characters are ignored in the masking process. This is useful for displaying phone numbers in a
-        /// privacy-preserving manner, such as in user interfaces or logs.</remarks>
-        /// <param name="phoneNumber">The phone number to mask. This should be a string containing the phone number to be processed. If the value
-        /// is null, empty, or contains fewer than two digits, the original value is returned.</param>
-        /// <returns>A string in which all digits of the input phone number except the last two are replaced with asterisks. If
-        /// the input contains fewer than two digits, the original phone number is returned.</returns>
-        public static string MaskPhoneNumber(string phoneNumber) {
-            if (String.IsNullOrWhiteSpace(phoneNumber)) return phoneNumber;
-            string digitsOnly = new String(phoneNumber.Where(char.IsDigit).ToArray());
-            if (digitsOnly.Length < 2) return phoneNumber; // Not enough digits to mask
-            string maskedDigits = new String('*', digitsOnly.Length - 2) + digitsOnly[^2..];
-            return maskedDigits;
+        /// <remarks>This method validates the phone number format using StringValidator.IsValidPhoneNumber,
+        /// then masks all digits except the country code, first digit after it, and last two digits.
+        /// This is useful for displaying phone numbers in a privacy-preserving manner.</remarks>
+        /// <param name="phoneNumber">The phone number to mask. Must be in international format starting with '+' followed by country code.</param>
+        /// <param name="countryCodeLength">The length of the country code (1-3 digits). Defaults to 2.</param>
+        /// <returns>A masked phone number in format +(country code)X*******XX. If the input is invalid, an ArgumentException is thrown.</returns>
+        /// <exception cref="ArgumentException">Thrown when the phone number is not in a valid international format.</exception>
+        public static string MaskPhoneNumber(string phoneNumber, int countryCodeLength = 2) {
+            if (!StringValidator.IsValidPhoneNumber(phoneNumber))
+                throw new ArgumentException("The provided string isn't a valid phone number with country code");
+
+            if (countryCodeLength < 1 || countryCodeLength > 3)
+                throw new ArgumentException("Country code length must be between 1 and 3");
+
+            // Get all digits
+            string digitsOnly = new string(phoneNumber.Where(char.IsDigit).ToArray());
+
+            if (digitsOnly.Length <= countryCodeLength + 2)
+                return phoneNumber; // Not enough digits to mask properly
+
+            string countryCode = digitsOnly[..countryCodeLength];
+            string numberPart = digitsOnly[countryCodeLength..];
+
+            // Format: +(country code)X*******XX
+            string firstDigit = numberPart[0].ToString();
+            string lastTwo = numberPart[^2..];
+            string masked = new string('*', numberPart.Length - 3);
+
+            return $"+{countryCode}{firstDigit}{masked}{lastTwo}";
         }
 
     }

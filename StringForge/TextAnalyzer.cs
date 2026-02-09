@@ -70,7 +70,7 @@ namespace StringForge {
         /// <param name="input">The string to evaluate. This parameter must not be null, empty, or consist only of white-space characters.</param>
         /// <returns>true if the input string is a palindrome; otherwise, false.</returns>
         public static bool IsPalindrome(string input) {
-            if (String.IsNullOrEmpty(input) || String.IsNullOrWhiteSpace(input)) return false;
+            if (String.IsNullOrEmpty(input) || String.IsNullOrWhiteSpace(input)) return true;
             string cleaned = new string(input.Where(char.IsLetterOrDigit).ToArray()).ToLower();
             return cleaned.SequenceEqual(cleaned.Reverse());
         }
