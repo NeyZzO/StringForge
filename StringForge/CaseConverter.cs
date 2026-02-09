@@ -4,6 +4,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace StringForge {
+    /// <summary>
+    /// Provides static methods for converting strings between various case formats, such as title case, snake_case,
+    /// camelCase, PascalCase, kebab-case, alternating case, and SCREAMING_SNAKE_CASE, as well as identifying the case
+    /// type of a given string.
+    /// </summary>
+    /// <remarks>This class offers a comprehensive set of string case conversion utilities suitable for
+    /// different programming conventions and scenarios. All methods handle null or empty inputs gracefully by returning
+    /// the original value. The class is thread-safe and can be used without instantiation.</remarks>
     public static class CaseConverter {
 
         /// <summary>

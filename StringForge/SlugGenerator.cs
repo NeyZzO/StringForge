@@ -16,8 +16,9 @@ namespace StringForge {
         /// <returns>A string containing the generated slug suitable for use in URLs. If the input is null or white space, the
         /// original input is returned.</returns>
         public static string GenerateSlug(string input) {
-            if (String.IsNullOrWhiteSpace(input)) return input;
+            if (String.IsNullOrWhiteSpace(input)) return input.Trim();
             string slug = input.ToLowerInvariant();
+            slug = RemoveDiacritics(slug);
             slug = slug.Replace(" ", "-");
             slug = System.Text.RegularExpressions.Regex.Replace(slug, @"[^a-z0-9\-]", "");
             slug = System.Text.RegularExpressions.Regex.Replace(slug, @"-+", "-");
